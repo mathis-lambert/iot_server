@@ -1,0 +1,22 @@
+[project]
+name = "iot_server"
+version = "0.1.0"
+description = "A simple gateway project with UDP server and MongoDB integration"
+authors = [
+    { name = "Mathis Lambert" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "pymongo",
+    "pyserial",
+    "python-dotenv",
+    "pydantic-settings"
+]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+#[tool.setuptools]
+#packages = ["iot_server"]
+#package-dir = { "" = "src" }

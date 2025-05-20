@@ -1,0 +1,23 @@
+# Configuration file version
+apiVersion: 1
+
+datasources:
+  - name: MongoDB IoT
+    uid: mongo_iot
+    type: haohanyang-mongodb-datasource   # ID du plugin
+    access: proxy
+    isDefault: true
+    editable: true
+
+    # Paramètres spécifiques au plugin (jsonData)
+    jsonData:
+      host: mongo
+      port: 27017
+      authType: auth-username-password
+      username: admin
+      database: iot
+      ssl: false
+
+    # Données sensibles (secureJsonData) – séparées du reste
+    secureJsonData:
+      password: $MONGO_PASSWORD  # Mot de passe de l'utilisateur admin

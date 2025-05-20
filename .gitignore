@@ -1,0 +1,9 @@
+data/*
+.env
+*.egg-info
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.db
+.idea

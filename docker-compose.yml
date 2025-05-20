@@ -1,0 +1,56 @@
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-volume:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+      - MONGO_INITDB_DATABASE=iot
+    networks: [ gateway-net ]
+
+  #  server:
+  #    build: .
+  #    container_name: server
+  #    depends_on:
+  #      - mongodb
+  #    # To enable only with Linux
+  #    #    devices:
+  #    #      - "/dev/tty.debug-console:/dev/tty.debug-console"
+  #    restart: unless-stopped
+  #    env_file: ".env"
+  #    ports:
+  #      - "10000:10000"
+  #    networks:
+  #      - gateway-net
+
+  grafana:
+    image: grafana/grafana-oss:11.5.0
+    container_name: grafana
+    restart: unless-stopped
+    depends_on: [ mongodb ]
+    ports:
+      - "3000:3000"
+    environment:
+      GF_INSTALL_PLUGINS: https://github.com/haohanyang/mongodb-datasource/releases/download/v0.3.2/haohanyang-mongodb-datasource-0.3.2.zip;haohanyang-mongodb-datasource
+      GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: haohanyang-mongodb-datasource
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USERNAME:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+    env_file: ".env"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/etc/grafana/dashboards:ro
+    networks: [ gateway-net ]
+
+volumes:
+  mongo-volume:
+  grafana-data:
+
+networks:
+  gateway-net:
+    driver: bridge

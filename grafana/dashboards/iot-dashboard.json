@@ -1,0 +1,574 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard",
+        "uid": "-- Grafana --"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": 2,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "haohanyang-mongodb-datasource",
+        "uid": "mongo_iot"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 30
+              },
+              {
+                "color": "red",
+                "value": 40
+              }
+            ]
+          },
+          "unit": "celsius"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 0,
+        "y": 0
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "sparkline": {
+          "show": true
+        },
+        "textMode": "value_and_name",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.5.0",
+      "targets": [
+        {
+          "collection": "events",
+          "isStreaming": false,
+          "queryLanguage": "json",
+          "queryText": "[ { \"$match\": { \"timestamp\": { \"$gt\": { \"$date\": { \"$numberLong\": \"$__from\" } }, \"$lt\": { \"$date\": { \"$numberLong\": \"$__to\" } } } } }, { \"$project\": { \"ts\": \"$timestamp\", \"value\": \"$value.t\" } }, { \"$sort\": { \"ts\": 1 } } ]",
+          "queryType": "timeseries",
+          "refId": "TempStat"
+        }
+      ],
+      "title": "Température actuelle (°C)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "haohanyang-mongodb-datasource",
+        "uid": "mongo_iot"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 30
+              },
+              {
+                "color": "green",
+                "value": 40
+              },
+              {
+                "color": "orange",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 85
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 8,
+        "y": 0
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "sparkline": {
+          "show": true
+        },
+        "textMode": "value_and_name",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.5.0",
+      "targets": [
+        {
+          "collection": "events",
+          "isStreaming": false,
+          "queryLanguage": "json",
+          "queryText": "[ { \"$match\": { \"timestamp\": { \"$gt\": { \"$date\": { \"$numberLong\": \"$__from\" } }, \"$lt\": { \"$date\": { \"$numberLong\": \"$__to\" } } } } }, { \"$project\": { \"ts\": \"$timestamp\", \"value\": \"$value.h\" } }, { \"$sort\": { \"ts\": 1 } } ]",
+          "queryType": "timeseries",
+          "refId": "HumidStat"
+        }
+      ],
+      "title": "Humidité actuelle (%)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "haohanyang-mongodb-datasource",
+        "uid": "mongo_iot"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1013
+              },
+              {
+                "color": "orange",
+                "value": 1030
+              }
+            ]
+          },
+          "unit": "pressurehpa"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 16,
+        "y": 0
+      },
+      "id": 6,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "sparkline": {
+          "show": true
+        },
+        "textMode": "value_and_name",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.5.0",
+      "targets": [
+        {
+          "collection": "events",
+          "isStreaming": false,
+          "queryLanguage": "json",
+          "queryText": "[{  \"$match\": { \"timestamp\": {\"$gt\": { \"$date\": { \"$numberLong\": \"$__from\" } },\"$lt\": { \"$date\": { \"$numberLong\": \"$__to\" } } }  }},{ \"$project\": { \"ts\": \"$timestamp\", \"value\": \"$value.p\" } },{ \"$sort\": { \"ts\": 1 } }  ]",
+          "queryType": "timeseries",
+          "refId": "PressStat"
+        }
+      ],
+      "title": "Pression actuelle (hPa)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "haohanyang-mongodb-datasource",
+        "uid": "mongo_iot"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 30
+              },
+              {
+                "color": "red",
+                "value": 40
+              }
+            ]
+          },
+          "unit": "celsius"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "id": 1,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.5.0",
+      "targets": [
+        {
+          "collection": "events",
+          "isStreaming": false,
+          "queryLanguage": "json",
+          "queryText": "[ { \"$match\": { \"timestamp\": { \"$gt\": { \"$date\": { \"$numberLong\": \"$__from\" } }, \"$lt\": { \"$date\": { \"$numberLong\": \"$__to\" } } } } }, { \"$project\": { \"ts\": \"$timestamp\", \"value\": \"$value.t\" } }, { \"$sort\": { \"ts\": 1 } } ]",
+          "queryType": "timeseries",
+          "refId": "A"
+        }
+      ],
+      "title": "Température (°C) – historique",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "haohanyang-mongodb-datasource",
+        "uid": "mongo_iot"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 30
+              },
+              {
+                "color": "green",
+                "value": 40
+              },
+              {
+                "color": "orange",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 85
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.5.0",
+      "targets": [
+        {
+          "collection": "events",
+          "isStreaming": false,
+          "queryLanguage": "json",
+          "queryText": "[ { \"$match\": { \"timestamp\": { \"$gt\": { \"$date\": { \"$numberLong\": \"$__from\" } }, \"$lt\": { \"$date\": { \"$numberLong\": \"$__to\" } } } } }, { \"$project\": { \"ts\": \"$timestamp\", \"value\": \"$value.h\" } }, { \"$sort\": { \"ts\": 1 } } ]",
+          "queryType": "timeseries",
+          "refId": "B"
+        }
+      ],
+      "title": "Humidité (%) – historique",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "haohanyang-mongodb-datasource",
+        "uid": "mongo_iot"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1013
+              },
+              {
+                "color": "orange",
+                "value": 1030
+              }
+            ]
+          },
+          "unit": "pressurehpa"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 21
+      },
+      "id": 3,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.5.0",
+      "targets": [
+        {
+          "collection": "events",
+          "isStreaming": false,
+          "queryLanguage": "json",
+          "queryText": "[{  \"$match\": { \"timestamp\": {\"$gt\": { \"$date\": { \"$numberLong\": \"$__from\" } },\"$lt\": { \"$date\": { \"$numberLong\": \"$__to\" } } }  }},{ \"$project\": { \"ts\": \"$timestamp\", \"value\": \"$value.p\" } },{ \"$sort\": { \"ts\": 1 } }  ]",
+          "queryType": "timeseries",
+          "refId": "C"
+        }
+      ],
+      "title": "Pression (hPa) – historique",
+      "type": "timeseries"
+    }
+  ],
+  "preload": false,
+  "refresh": "5s",
+  "schemaVersion": 40,
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "IoT Environment – Dashboard",
+  "uid": "iot-overview",
+  "version": 1,
+  "weekStart": ""
+}
