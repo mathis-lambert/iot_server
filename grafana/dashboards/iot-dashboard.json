@@ -85,7 +85,7 @@
           "collection": "events",
           "isStreaming": false,
           "queryLanguage": "json",
-          "queryText": "[ { \"$match\": { \"timestamp\": { \"$gt\": { \"$date\": { \"$numberLong\": \"$__from\" } }, \"$lt\": { \"$date\": { \"$numberLong\": \"$__to\" } } } } }, { \"$project\": { \"ts\": \"$timestamp\", \"value\": \"$value.t\" } }, { \"$sort\": { \"ts\": 1 } } ]",
+          "queryText": "[ { \"$match\": { \"deviceId\": \"$devices\", \"timestamp\": { \"$gt\": { \"$date\": { \"$numberLong\": \"$__from\" } }, \"$lt\": { \"$date\": { \"$numberLong\": \"$__to\" } } } } }, { \"$project\": { \"ts\": \"$timestamp\", \"value\": \"$value.t\" } }, { \"$sort\": { \"ts\": 1 } } ]",
           "queryType": "timeseries",
           "refId": "TempStat"
         }
@@ -166,7 +166,7 @@
           "collection": "events",
           "isStreaming": false,
           "queryLanguage": "json",
-          "queryText": "[ { \"$match\": { \"timestamp\": { \"$gt\": { \"$date\": { \"$numberLong\": \"$__from\" } }, \"$lt\": { \"$date\": { \"$numberLong\": \"$__to\" } } } } }, { \"$project\": { \"ts\": \"$timestamp\", \"value\": \"$value.h\" } }, { \"$sort\": { \"ts\": 1 } } ]",
+          "queryText": "[ { \"$match\": { \"deviceId\": \"$devices\",\"timestamp\": { \"$gt\": { \"$date\": { \"$numberLong\": \"$__from\" } }, \"$lt\": { \"$date\": { \"$numberLong\": \"$__to\" } } } } }, { \"$project\": { \"ts\": \"$timestamp\", \"value\": \"$value.h\" } }, { \"$sort\": { \"ts\": 1 } } ]",
           "queryType": "timeseries",
           "refId": "HumidStat"
         }
@@ -237,7 +237,7 @@
           "collection": "events",
           "isStreaming": false,
           "queryLanguage": "json",
-          "queryText": "[{  \"$match\": { \"timestamp\": {\"$gt\": { \"$date\": { \"$numberLong\": \"$__from\" } },\"$lt\": { \"$date\": { \"$numberLong\": \"$__to\" } } }  }},{ \"$project\": { \"ts\": \"$timestamp\", \"value\": \"$value.p\" } },{ \"$sort\": { \"ts\": 1 } }  ]",
+          "queryText": "[{  \"$match\": { \"deviceId\": \"$devices\",\"timestamp\": {\"$gt\": { \"$date\": { \"$numberLong\": \"$__from\" } },\"$lt\": { \"$date\": { \"$numberLong\": \"$__to\" } } }  }},{ \"$project\": { \"ts\": \"$timestamp\", \"value\": \"$value.p\" } },{ \"$sort\": { \"ts\": 1 } }  ]",
           "queryType": "timeseries",
           "refId": "PressStat"
         }
@@ -253,7 +253,8 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "thresholds",
+            "seriesBy": "last"
           },
           "custom": {
             "axisBorderShow": false,
@@ -261,25 +262,29 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "barAlignment": 0,
+            "barAlignment": -1,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
+            "fillOpacity": 15,
+            "gradientMode": "opacity",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
+            "insertNulls": 3600000,
+            "lineInterpolation": "smooth",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 2,
             "pointSize": 5,
             "scaleDistribution": {
-              "type": "linear"
+              "log": 2,
+              "type": "log"
             },
             "showPoints": "auto",
-            "spanNulls": false,
+            "spanNulls": 3600000,
             "stacking": {
               "group": "A",
               "mode": "none"
@@ -288,7 +293,6 @@
               "mode": "off"
             }
           },
-          "decimals": 1,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -298,12 +302,12 @@
                 "value": null
               },
               {
-                "color": "orange",
-                "value": 30
+                "color": "#EAB839",
+                "value": 29
               },
               {
                 "color": "red",
-                "value": 40
+                "value": 31
               }
             ]
           },
@@ -321,7 +325,7 @@
       "options": {
         "legend": {
           "calcs": [],
-          "displayMode": "table",
+          "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
         },
@@ -337,7 +341,7 @@
           "collection": "events",
           "isStreaming": false,
           "queryLanguage": "json",
-          "queryText": "[ { \"$match\": { \"timestamp\": { \"$gt\": { \"$date\": { \"$numberLong\": \"$__from\" } }, \"$lt\": { \"$date\": { \"$numberLong\": \"$__to\" } } } } }, { \"$project\": { \"ts\": \"$timestamp\", \"value\": \"$value.t\" } }, { \"$sort\": { \"ts\": 1 } } ]",
+          "queryText": "[ { \"$match\": { \"deviceId\": \"$devices\",\"timestamp\": { \"$gt\": { \"$date\": { \"$numberLong\": \"$__from\" } }, \"$lt\": { \"$date\": { \"$numberLong\": \"$__to\" } } } } }, { \"$project\": { \"ts\": \"$timestamp\", \"value\": \"$value.t\" } }, { \"$sort\": { \"ts\": 1 } } ]",
           "queryType": "timeseries",
           "refId": "A"
         }
@@ -445,7 +449,7 @@
           "collection": "events",
           "isStreaming": false,
           "queryLanguage": "json",
-          "queryText": "[ { \"$match\": { \"timestamp\": { \"$gt\": { \"$date\": { \"$numberLong\": \"$__from\" } }, \"$lt\": { \"$date\": { \"$numberLong\": \"$__to\" } } } } }, { \"$project\": { \"ts\": \"$timestamp\", \"value\": \"$value.h\" } }, { \"$sort\": { \"ts\": 1 } } ]",
+          "queryText": "[ { \"$match\": { \"deviceId\": \"$devices\",\"timestamp\": { \"$gt\": { \"$date\": { \"$numberLong\": \"$__from\" } }, \"$lt\": { \"$date\": { \"$numberLong\": \"$__to\" } } } } }, { \"$project\": { \"ts\": \"$timestamp\", \"value\": \"$value.h\" } }, { \"$sort\": { \"ts\": 1 } } ]",
           "queryType": "timeseries",
           "refId": "B"
         }
@@ -545,7 +549,7 @@
           "collection": "events",
           "isStreaming": false,
           "queryLanguage": "json",
-          "queryText": "[{  \"$match\": { \"timestamp\": {\"$gt\": { \"$date\": { \"$numberLong\": \"$__from\" } },\"$lt\": { \"$date\": { \"$numberLong\": \"$__to\" } } }  }},{ \"$project\": { \"ts\": \"$timestamp\", \"value\": \"$value.p\" } },{ \"$sort\": { \"ts\": 1 } }  ]",
+          "queryText": "[{  \"$match\": { \"deviceId\": \"$devices\",\"timestamp\": {\"$gt\": { \"$date\": { \"$numberLong\": \"$__from\" } },\"$lt\": { \"$date\": { \"$numberLong\": \"$__to\" } } }  }},{ \"$project\": { \"ts\": \"$timestamp\", \"value\": \"$value.p\" } },{ \"$sort\": { \"ts\": 1 } }  ]",
           "queryType": "timeseries",
           "refId": "C"
         }
@@ -559,7 +563,28 @@
   "schemaVersion": 40,
   "tags": [],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "current": {
+          "text": "device-001",
+          "value": "device-001"
+        },
+        "definition": "",
+        "label": "Devices",
+        "name": "devices",
+        "options": [],
+        "query": {
+          "collection": "events",
+          "queryText": "[{ \"$group\": { \"_id\": \"$deviceId\" } },{ \"$project\": { \"_id\": 0,  \"value\": \"$_id\", \"text\":  \"$_id\" } }, {\"$sort\": { \"text\": 1 } } ]",
+          "queryType": "table",
+          "refId": "MongoDBVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      }
+    ]
   },
   "time": {
     "from": "now-15m",
@@ -569,6 +594,6 @@
   "timezone": "",
   "title": "IoT Environment – Dashboard",
   "uid": "iot-overview",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }
