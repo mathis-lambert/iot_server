@@ -2,11 +2,17 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(
+        env_file=".env", env_file_encoding="utf-8", extra="ignore"
+    )
 
     # --- General Configuration ---
     peripheral_port: str
     peripheral_baudrate: int
+
+    # --- UDP Configuration ---
+    server_host: str
+    server_port: int
 
     # --- MongoDB Configuration ---
     mongo_host: str

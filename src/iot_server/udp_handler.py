@@ -1,4 +1,3 @@
-# udp_server.py
 import json
 import logging
 import socketserver
@@ -7,48 +6,74 @@ from typing import Any, Dict, Callable, Optional
 
 from pydantic import BaseModel, ValidationError
 
-from .serial_uart import serial_uart   # ton module existant
+from .classes.serial_uart import serial_uart
+from .database.mongodb import mongo_client
+from .settings import settings
 
-# --------------------------------------------------------------------------- #
-# 1. Modèle Pydantic : garantit qu’on reçoit bien {"request": str, "data": {}} #
-# --------------------------------------------------------------------------- #
 
 class UDPMessage(BaseModel):
     request: str
     data: Dict[str, Any]
 
-# --------------------------------------------------------------------------- #
-# 2. Parsing + validation                                                     #
-# --------------------------------------------------------------------------- #
+
+"""
+{
+    "request": "ping",
+    "data": {}
+}
+"""
+
 
 def parse_udp_message(raw: bytes) -> Optional[UDPMessage]:
     """Renvoie un UDPMessage valide ou None si parsing / validation échoue."""
     try:
+        # check if begin with {
+        if not raw.startswith(b"{"):
+            raise ValueError("Invalid JSON")
+
         payload = json.loads(raw.decode("utf-8"))
         return UDPMessage(**payload)
-    except (json.JSONDecodeError, ValidationError) as exc:
-        logging.warning("Message invalide : %s", exc)
+    except (json.JSONDecodeError, ValidationError, ValueError) as exc:
+        logging.warning("Message invalide : %s - %s", raw, exc)
         return None
 
-# --------------------------------------------------------------------------- #
-# 3. Routage : un dict « request » ➜ fonction                                 #
-# --------------------------------------------------------------------------- #
 
 def _handle_ping(msg: UDPMessage) -> str:
     return "pong"
 
-def _handle_command(msg: UDPMessage) -> str:
-    # Ex. le smartphone envoie {"request":"command", "data":{"value":"LED_ON"}}
-    value = msg.data.get("value", "")
-    serial_uart.send_message(value.encode("utf-8"))
-    logging.info("Commande envoyée au µC : %s", value)
+
+def _handle_get_values(msg: UDPMessage) -> str:
+    device_id = msg.data.get("device_id", None)
+
+    if not device_id:
+        return "err: missing device_id"
+
+    # Récupération du dernier document pour le deviceId, timestamp le plus récent
+    value = mongo_client.find_one(
+        {"deviceId": device_id},
+        sort=[("timestamp", -1)],
+    )
+
+    if not value:
+        return "err: no data found"
+
+    return json.dumps(value)  # Renvoie le dernier document
+
+
+def _handle_update_screen(msg: UDPMessage) -> str:
+    """Met à jour l'écran LCD avec les valeurs fournies."""
+    data = json.dumps(msg.data)
+    serial_uart.send_message(data.encode("utf-8"))
+    logging.info("Commande envoyée au µC : %s", data)
     return "ack"
+
 
 ROUTES: dict[str, Callable[[UDPMessage], str]] = {
     "ping": _handle_ping,
-    "command": _handle_command,
-    # ajoute d’autres handlers ici…
+    "get-values": _handle_get_values,
+    "update-screen": _handle_update_screen,
 }
+
 
 def dispatch(msg: UDPMessage) -> str:
     """Trouve le handler adapté ou renvoie une erreur."""
@@ -57,12 +82,9 @@ def dispatch(msg: UDPMessage) -> str:
         return handler(msg)
     return "err: unknown request"
 
-# --------------------------------------------------------------------------- #
-# 4. Handler UDP threaded                                                     #
-# --------------------------------------------------------------------------- #
 
 class ThreadedUDPRequestHandler(socketserver.BaseRequestHandler):
-    def handle(self) -> None:                              # type: ignore[override]
+    def handle(self) -> None:  # type: ignore[override]
         raw_data: bytes = self.request[0].strip()
         sock = self.request[1]
 
@@ -86,14 +108,13 @@ class ThreadedUDPRequestHandler(socketserver.BaseRequestHandler):
             msg.request,
         )
 
-# --------------------------------------------------------------------------- #
-# 5. Serveur                                                                 #
-# --------------------------------------------------------------------------- #
+
 class ThreadedUDPServer(socketserver.ThreadingMixIn, socketserver.UDPServer):
-    daemon_threads = True          # coupe proprement à la fermeture du process
+    daemon_threads = True  # coupe proprement à la fermeture du process
     allow_reuse_address = True
 
-def run(host: str = "0.0.0.0", port: int = 10000) -> None:
+
+def run(host: str = settings.server_host, port: int = settings.server_port) -> None:
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s | %(levelname)-8s | %(message)s",

@@ -1,16 +1,18 @@
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, PyMongoError
 
+from iot_server.settings import settings
+
 
 class MongoDB:
     def __init__(
-            self,
-            host: str,
-            port: int,
-            username: str,
-            password: str,
-            db_name: str,
-            collection_name: str
+        self,
+        host: str,
+        port: int,
+        username: str,
+        password: str,
+        db_name: str,
+        collection_name: str,
     ):
         """
         Initialise la connexion à MongoDB.
@@ -33,13 +35,15 @@ class MongoDB:
                 port=self.port,
                 username=self.username,
                 password=self.password,
-                serverSelectionTimeoutMS=5000
+                serverSelectionTimeoutMS=5000,
             )
             # Test de la connexion
             self.client.server_info()
             self.db = self.client[self.db_name]
             self.collection = self.db[self.collection_name]
-            print(f"[MongoDB] Connected to {self.host}:{self.port} ({self.db_name}.{self.collection_name})")
+            print(
+                f"[MongoDB] Connected to {self.host}:{self.port} ({self.db_name}.{self.collection_name})"
+            )
         except ConnectionFailure as e:
             print(f"[MongoDB] Connection failed: {e}")
             raise
@@ -55,12 +59,12 @@ class MongoDB:
             print(f"[MongoDB] insert_one error: {e}")
             return None
 
-    def find_one(self, query: dict):
+    def find_one(self, query: dict, **kwargs):
         """
         Trouve un document correspondant à la requête.
         """
         try:
-            return self.collection.find_one(query)
+            return self.collection.find_one(query, **kwargs)
         except PyMongoError as e:
             print(f"[MongoDB] find_one error: {e}")
             return None
@@ -83,7 +87,7 @@ class MongoDB:
         Met à jour un document correspondant à la requête.
         """
         try:
-            result = self.collection.update_one(query, {'$set': update}, upsert=upsert)
+            result = self.collection.update_one(query, {"$set": update}, upsert=upsert)
             return result.modified_count
         except PyMongoError as e:
             print(f"[MongoDB] update_one error: {e}")
@@ -107,3 +111,13 @@ class MongoDB:
         if self.client:
             self.client.close()
             print("[MongoDB] Connection closed.")
+
+
+mongo_client = MongoDB(
+    settings.mongo_host,
+    settings.mongo_port,
+    settings.mongo_username,
+    settings.mongo_password,
+    "iot",
+    "events",
+)

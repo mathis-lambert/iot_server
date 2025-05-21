@@ -29,7 +29,7 @@ class SerialUART:
         self.ser.dsrdtr = False  # disable hardware (DSR/DTR) flow control
         # self.ser.writeTimeout = 0 #timeout for write
 
-        print('Starting Up Serial Monitor')
+        print("Starting Up Serial Monitor")
         try:
             self.ser.open()
         except serial.SerialException:

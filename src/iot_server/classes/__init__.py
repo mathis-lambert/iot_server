@@ -1,9 +1,5 @@
-from .serial_uart import SerialUART, serial_uart
-from .udp_handler import ThreadedUDPRequestHandler, ThreadedUDPServer
+from .serial_uart import SerialUART
 
 __all__ = [
-    "serial_uart",
     "SerialUART",
-    "ThreadedUDPRequestHandler",
-    "ThreadedUDPServer",
 ]

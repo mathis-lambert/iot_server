@@ -1,1 +1,6 @@
-__all__ = ["main", "classes", "settings", "database"]
+import classes
+import database
+import main
+import settings
+
+__all__ = ["classes", "database", "main", "settings"]
