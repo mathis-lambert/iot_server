@@ -1,12 +1,29 @@
+import json
+import logging
 import random
 import threading
 from datetime import datetime, UTC
 from time import sleep
 
+from pydantic import BaseModel, ValidationError
+
 from iot_server.classes.serial_uart import SerialUART
 from iot_server.database.mongodb import mongo_client
 from iot_server.settings import settings
 from iot_server.udp_handler import run as run_udp
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)-8s | %(message)s",
+)
+
+
+class SensorData(BaseModel):
+    id: int
+    t: float
+    h: float
+    p: float
+    lux: float
 
 
 class App:
@@ -44,7 +61,7 @@ class App:
                 },
             }
             mongo_client.insert_one(doc)
-            print(f"Document inserted : {doc}")
+            logging.debug(f"Document inserted : {doc}")
             sleep(5)
 
     def _read_serial(self) -> None:
@@ -54,8 +71,24 @@ class App:
             if line:
                 msg = line.decode().rstrip()
                 self.file.write(msg + "\n")
-                mongo_client.insert_one({"value": msg})
-                print(f"Message <{msg}> received from micro-controller.")
+                logging.info(f"Message <{msg}> received from micro-controller.")
+
+                try:
+                    data_dict = json.loads(msg)
+                    sensor_data = SensorData(**data_dict)  # Validation automatique ici
+                    doc = {
+                        "deviceId": f"device-00{sensor_data.id}",
+                        "timestamp": datetime.now(UTC),
+                        "value": {
+                            "t": sensor_data.t,
+                            "h": sensor_data.h,
+                            "p": sensor_data.p,
+                            "lux": sensor_data.lux,
+                        }
+                    }
+                    mongo_client.insert_one(doc)
+                except (json.JSONDecodeError, ValidationError) as e:
+                    logging.debug(f"Erreur de parsing ou validation : {e}")
 
     def run(self) -> None:
         sensor_thread = threading.Thread(
@@ -65,10 +98,10 @@ class App:
             target=self._read_serial, name="serial-read", daemon=True
         )
 
-        sensor_thread.start()
+        # sensor_thread.start()
         serial_thread.start()
 
-        print(
+        logging.debug(
             f"UDP server listening on {settings.server_host}:{settings.server_port}  "
             "(threads sensor-sim / serial-read démarrés)"
         )
@@ -78,13 +111,13 @@ class App:
             while True:
                 sleep(1)
         except (KeyboardInterrupt, SystemExit):
-            print("Stopping…")
+            logging.debug("Stopping…")
             self._stop.set()
             sensor_thread.join()
             serial_thread.join()
             self.file.close()
             self.serial_uart.ser.close()
-            print("Bye !")
+            logging.debug("Bye !")
 
 
 if __name__ == "__main__":

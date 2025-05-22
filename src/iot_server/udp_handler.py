@@ -43,35 +43,74 @@ def _handle_ping(msg: UDPMessage) -> str:
 
 
 def _handle_get_values(msg: UDPMessage) -> str:
-    device_id = msg.data.get("device_id", None)
+    logging.info("get-values: %s", msg.data)
+    device_id = msg.data.get("device_id", "")
 
     if not device_id:
         return "err: missing device_id"
 
     # Récupération du dernier document pour le deviceId, timestamp le plus récent
-    value = mongo_client.find_one(
+    value = mongo_client.find(
         {"deviceId": device_id},
+        limit=1,
         sort=[("timestamp", -1)],
+        filter={"value": 1, "_id": 0},
     )
 
     if not value:
         return "err: no data found"
 
-    return json.dumps(value)  # Renvoie le dernier document
+    resp = value[0].get("value", {})
+
+    return json.dumps(resp)  # Renvoie la liste des derniers documents
 
 
 def _handle_update_screen(msg: UDPMessage) -> str:
     """Met à jour l'écran LCD avec les valeurs fournies."""
-    data = json.dumps(msg.data)
-    serial_uart.send_message(data.encode("utf-8"))
-    logging.info("Commande envoyée au µC : %s", data)
+    data = msg.data
+    logging.info("update-screen: %s", data)
+    device_id: str = data.get("device_id", "")
+    order: str = data.get("sensor_order", "")
+
+    if not device_id or not order:
+        return "Error sending ctrl packet"
+
+    packet: bytes = f"SETORDER,{device_id.split("device-00")[-1]},{''.join(order)}".encode("utf-8")
+    serial_uart.send_message(packet)
+    logging.info("Commande envoyée au µC : %s", packet)
     return "ack"
+
+
+def _handle_get_devices(msg: UDPMessage) -> str:
+    pipeline = [
+        {
+            "$match": {
+                "deviceId": {"$regex": r"^device-00[1-9]$"},
+                "timestamp": {"$exists": True},
+            }
+        },
+        {
+            "$group": {"_id": "$deviceId"}
+        },
+        {
+            "$sort": {"_id": 1}
+        }
+    ]
+
+    result = mongo_client.aggregate(pipeline)
+    devices_list = [doc["_id"] for doc in result]
+
+    if not devices_list:
+        return json.dumps({"error": "no devices found"})
+
+    return json.dumps(devices_list)
 
 
 ROUTES: dict[str, Callable[[UDPMessage], str]] = {
     "ping": _handle_ping,
     "get-values": _handle_get_values,
     "update-screen": _handle_update_screen,
+    "get-devices": _handle_get_devices,
 }
 
 
@@ -101,7 +140,7 @@ class ThreadedUDPRequestHandler(socketserver.BaseRequestHandler):
         sock.sendto(reply.encode("utf-8"), self.client_address)
 
         # Log minimal mais lisible
-        logging.debug(
+        logging.info(
             "%s: %s ➜ %s",
             threading.current_thread().name,
             self.client_address,

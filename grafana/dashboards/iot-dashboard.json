@@ -54,7 +54,7 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 0
       },
@@ -135,8 +135,8 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 0
       },
       "id": 5,
@@ -206,8 +206,8 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 0
       },
       "id": 6,
@@ -243,6 +243,82 @@
         }
       ],
       "title": "Pression actuelle (hPa)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "haohanyang-mongodb-datasource",
+        "uid": "mongo_iot"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "fieldMinMax": true,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "#6ED0E0",
+                "value": 60
+              },
+              {
+                "color": "#EAB839",
+                "value": 90
+              },
+              {
+                "color": "red",
+                "value": 130
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "id": 7,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "same_as_value",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^Value$/",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {
+          "percentSize": 1
+        },
+        "textMode": "value_and_name",
+        "wideLayout": false
+      },
+      "pluginVersion": "11.5.0",
+      "targets": [
+        {
+          "collection": "events",
+          "queryLanguage": "json",
+          "queryText": "[{  \"$match\": { \"deviceId\": \"$devices\",\"timestamp\": {\"$gt\": { \"$date\": { \"$numberLong\": \"$__from\" } },\"$lt\": { \"$date\": { \"$numberLong\": \"$__to\" } } }  }},{ \"$project\": { \"ts\": \"$timestamp\", \"value\": \"$value.lux\" } },{ \"$sort\": { \"ts\": 1 } }  ]",
+          "refId": "A"
+        }
+      ],
+      "title": "Luminosité (Lux)",
       "type": "stat"
     },
     {
@@ -594,6 +670,6 @@
   "timezone": "",
   "title": "IoT Environment – Dashboard",
   "uid": "iot-overview",
-  "version": 2,
+  "version": 4,
   "weekStart": ""
 }

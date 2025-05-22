@@ -1,3 +1,5 @@
+from typing import Optional, List, Dict, Any
+
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, PyMongoError
 
@@ -6,13 +8,13 @@ from iot_server.settings import settings
 
 class MongoDB:
     def __init__(
-        self,
-        host: str,
-        port: int,
-        username: str,
-        password: str,
-        db_name: str,
-        collection_name: str,
+            self,
+            host: str,
+            port: int,
+            username: str,
+            password: str,
+            db_name: str,
+            collection_name: str,
     ):
         """
         Initialise la connexion à MongoDB.
@@ -48,6 +50,21 @@ class MongoDB:
             print(f"[MongoDB] Connection failed: {e}")
             raise
 
+    def aggregate(self, pipeline: list, **kwargs):
+        """
+        Exécute un aggregation pipeline MongoDB.
+
+        :param pipeline: Liste des étapes d'agrégation.
+        :param kwargs: Arguments supplémentaires (ex: allowDiskUse=True).
+        :return: Générateur de documents résultat ou une liste, selon l'utilisation.
+        """
+        try:
+            cursor = self.collection.aggregate(pipeline, **kwargs)
+            return list(cursor)  # tu peux retourner un itérable si tu veux
+        except PyMongoError as e:
+            print(f"[MongoDB] aggregate error: {e}")
+            return []
+
     def insert_one(self, document: dict):
         """
         Insère un document dans la collection.
@@ -59,23 +76,45 @@ class MongoDB:
             print(f"[MongoDB] insert_one error: {e}")
             return None
 
-    def find_one(self, query: dict, **kwargs):
+    def find_one(
+            self,
+            query: Dict[str, Any],
+            filter: Optional[Dict[str, int]] = None,
+            **kwargs
+    ) -> Optional[Dict[str, Any]]:
         """
         Trouve un document correspondant à la requête.
+
+        :param query: Dictionnaire de filtre MongoDB.
+        :param filter: Projection des champs (ex: {"field1": 1, "field2": 0}).
+        :param kwargs: Arguments supplémentaires pour pymongo.find_one.
+        :return: Document trouvé ou None.
         """
         try:
-            return self.collection.find_one(query, **kwargs)
+            return self.collection.find_one(query, projection=filter, **kwargs)
         except PyMongoError as e:
             print(f"[MongoDB] find_one error: {e}")
             return None
 
-    def find(self, query: dict = {}, limit: int = 0):
+    def find(
+            self,
+            query: Dict[str, Any] = {},
+            filter: Optional[Dict[str, int]] = None,
+            limit: int = 0,
+            **kwargs
+    ) -> List[Dict[str, Any]]:
         """
         Retourne les documents correspondant à la requête (avec limite optionnelle).
+
+        :param query: Dictionnaire de filtre MongoDB.
+        :param filter: Projection des champs.
+        :param limit: Nombre maximum de documents à retourner (0 = pas de limite).
+        :param kwargs: Arguments supplémentaires pour pymongo.find.
+        :return: Liste de documents.
         """
         try:
-            cursor = self.collection.find(query)
-            if limit:
+            cursor = self.collection.find(query, projection=filter, **kwargs)
+            if limit > 0:
                 cursor = cursor.limit(limit)
             return list(cursor)
         except PyMongoError as e:
